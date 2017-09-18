@@ -232,9 +232,11 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self slk_adjustContentConfigurationIfNeeded];
 }
 
-- (void)viewDidLayoutSubviews
+- (void)viewSafeAreaInsetsDidChange
 {
-    [super viewDidLayoutSubviews];
+    [super viewSafeAreaInsetsDidChange];
+    
+    [self slk_updateViewConstraints];
 }
 
 
@@ -415,7 +417,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 
 - (CGFloat)slk_appropriateBottomMargin
 {
-    // A bottom margin is required only if the view is extended out of it bounds
+    // // A bottom margin is required if the view is extended out of it bounds
     if ((self.edgesForExtendedLayout & UIRectEdgeBottom) > 0) {
         
         UITabBar *tabBar = self.tabBarController.tabBar;
@@ -424,10 +426,16 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
         if (tabBar && !tabBar.hidden && !self.hidesBottomBarWhenPushed) {
             return CGRectGetHeight(tabBar.frame);
         }
+        // A bottom margin is required for iPhone X
+        if (@available(iOS 11.0, *)) {
+            return self.view.safeAreaInsets.bottom;
+        }
     }
     
     return 0.0;
 }
+
+
 
 - (CGFloat)slk_appropriateScrollViewHeight
 {
